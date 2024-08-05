@@ -25,7 +25,7 @@ public:
 
 private:
     // ROS
-    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr timer;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_pose;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_cmd;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;

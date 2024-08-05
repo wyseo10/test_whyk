@@ -5,11 +5,11 @@ using std::placeholders::_1;
 
 Simulator::Simulator() : Node("simulator") {
     // ROS publisher
-    pub_pose = this->create_publisher<visualization_msgs::msg::MarkerArray>("TODO", 10);
+    pub_pose = this->create_publisher<visualization_msgs::msg::MarkerArray>("robot/pose", 10);
 
     // ROS subscriber
     sub_cmd = this->create_subscription<geometry_msgs::msg::Twist>(
-            "TODO", 10, std::bind(&Simulator::cmd_callback, this, _1));
+            "robot/cmd", 10, std::bind(&Simulator::cmd_callback, this, _1));
 
     // ROS tf publisher
     tf_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);

@@ -19,6 +19,11 @@ Simulator::Simulator() : Node("simulator") {
             10ms, std::bind(&Simulator::timer_callback, this));
 }
 
+double dt = 0.01;
+double theta = 0;
+double v, w;
+double state_x, state_y;
+
 void Simulator::timer_callback() {
     update_state();
     publish_marker_pose();
@@ -27,10 +32,14 @@ void Simulator::timer_callback() {
 
 void Simulator::cmd_callback(const geometry_msgs::msg::Twist &msg) {
     //TODO: implement this!
+    v = msg.linear.x;
+    w = msg.angular.z;
 }
-
 void Simulator::update_state() {
     //TODO: implement this!
+    state_x = state_x + v * sin(theta) * dt;
+    state_y = state_y + v * cos(theta) * dt;
+    theta = theta + w * dt;
 }
 
 void Simulator::publish_marker_pose() {
@@ -60,4 +69,19 @@ void Simulator::publish_marker_pose() {
 
 void Simulator::broadcast_tf() {
     //TODO: implement this!
+    geometry_msgs::msg::TransformStamped t;
+    t.header.stamp = this->get_clock()->now();
+    
+    t.transform.translation.x = state_x;
+    t.transform.translation.y = state_y;
+    t.transform.translation.z = 0.0;
+
+    tf2::Quaternion q;
+    q.setRPY(0, 0, theta);
+    t.transform.rotation.x = q.x();
+    t.transform.rotation.y = q.y();
+    t.transform.rotation.z = q.z();
+    t.transform.rotation.w = q.w();
+
+    tf_broadcaster->sendTransform(t);
 }

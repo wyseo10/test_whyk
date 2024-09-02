@@ -32,16 +32,33 @@ double prev_error_th = 0;
 void CmdPublisher::timer_tf_callback() {
   //TODO: implement this!
   geometry_msgs::msg::TransformStamped t;
+  try {
+    t = tf_buffer->lookupTransform(
+      "world", "turtlesim1", tf2::TimePointZero);
+    
+    RCLCPP_INFO(this->get_logger(), "Received Transform: %f, %f, %f",
+                t.transform.translation.x,
+                t.transform.translation.y,
+                t.transform.translation.z
+    );
+  } catch (const tf2::TransformException & ex) {
+    RCLCPP_INFO(
+      this->get_logger(), "Could not transform %s",
+      ex.what());
+    return;
+    }
 
 
   geometry_msgs::msg::Quaternion q = t.transform.rotation;
   double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
   double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-  double theta = std::atan2(siny_cosp, cosy_cosp);
+  real_th = std::atan2(siny_cosp, cosy_cosp);
 
   real_x = t.transform.translation.x;
   real_y = t.transform.translation.y;
-  real_th = theta;
+
+
+  //RCLCPP_INFO(this->get_logger(), "%f, %f, %f", real_x, real_y, real_th);
 }
 
 void CmdPublisher::timer_cmd_callback() {

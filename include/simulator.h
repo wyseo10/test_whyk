@@ -4,6 +4,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "tf2/LinearMath/Quaternion.h"
 #include <geometry_msgs/msg/twist.hpp>
 
 class State {

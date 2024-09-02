@@ -21,7 +21,6 @@ Simulator::Simulator() : Node("simulator") {
 
 double dt = 0.01;
 double theta = 0;
-double v, w;
 double state_x, state_y;
 
 void Simulator::timer_callback() {
@@ -32,14 +31,14 @@ void Simulator::timer_callback() {
 
 void Simulator::cmd_callback(const geometry_msgs::msg::Twist &msg) {
     //TODO: implement this!
-    v = msg.linear.x;
-    w = msg.angular.z;
+    cmd_vel.v = msg.linear.x;
+    cmd_vel.w = msg.angular.z;
 }
 void Simulator::update_state() {
     //TODO: implement this!
-    state_x = state_x + v * sin(theta) * dt;
-    state_y = state_y + v * cos(theta) * dt;
-    theta = theta + w * dt;
+    state_x = state_x + cmd_vel.v * sin(theta) * dt;
+    state_y = state_y + cmd_vel.v * cos(theta) * dt;
+    state.theta = state.theta + cmd_vel.w * dt;
 }
 
 void Simulator::publish_marker_pose() {
@@ -47,7 +46,7 @@ void Simulator::publish_marker_pose() {
 
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "world";
-    marker.ns = "pose";
+    marker.ns = "turtlesim1";
     marker.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
     marker.mesh_resource = "package://ros2_turtlebot_simulator/mesh/quadrotor_3.dae";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -72,16 +71,20 @@ void Simulator::broadcast_tf() {
     geometry_msgs::msg::TransformStamped t;
     t.header.stamp = this->get_clock()->now();
     
+    t.header.frame_id = "/world";
+    std::string namespace_ = this->get_namespace();
+    t.child_frame_id = namespace_;
+   
     t.transform.translation.x = state_x;
     t.transform.translation.y = state_y;
     t.transform.translation.z = 0.0;
 
-    tf2::Quaternion q;
-    q.setRPY(0, 0, theta);
-    t.transform.rotation.x = q.x();
-    t.transform.rotation.y = q.y();
-    t.transform.rotation.z = q.z();
-    t.transform.rotation.w = q.w();
+    //tf2::Quaternion q;
+    //q.setRPY(0, 0, theta);
+    t.transform.rotation.x = 0;
+    t.transform.rotation.y = 0;
+    t.transform.rotation.z = sin(state.theta * 0.5);
+    t.transform.rotation.w = cos(state.theta * 0.5);
 
     tf_broadcaster->sendTransform(t);
 }

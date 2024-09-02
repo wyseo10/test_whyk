@@ -34,10 +34,14 @@ void Simulator::cmd_callback(const geometry_msgs::msg::Twist &msg) {
     cmd_vel.v = msg.linear.x;
     cmd_vel.w = msg.angular.z;
 }
-void Simulator::update_state() {
-    //TODO: implement this!
-    state_x = state_x + cmd_vel.v * sin(theta) * dt;
-    state_y = state_y + cmd_vel.v * cos(theta) * dt;
+void Simulator::update_state() {    
+
+    //double x_d = cmd_vel.v * cos(state.theta);
+    //double y_d = cmd_vel.v * sin(state.theta);
+    //double th_d = cmd_vel.w;
+    
+    state.x = state.x + cmd_vel.v * cos(state.theta) * dt;
+    state.y = state.y + cmd_vel.v * sin(state.theta) * dt;
     state.theta = state.theta + cmd_vel.w * dt;
 }
 
@@ -50,17 +54,21 @@ void Simulator::publish_marker_pose() {
     marker.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
     marker.mesh_resource = "package://ros2_turtlebot_simulator/mesh/quadrotor_3.dae";
     marker.action = visualization_msgs::msg::Marker::ADD;
+    
     marker.pose.position.x = state.x;
     marker.pose.position.y = state.y;
     marker.pose.position.z = 0;
+    
     marker.pose.orientation.w = cos(state.theta * 0.5);
     marker.pose.orientation.x = 0;
     marker.pose.orientation.y = 0;
     marker.pose.orientation.z = sin(state.theta * 0.5);
+    
     marker.scale.x = robot_scale;
     marker.scale.y = robot_scale;
     marker.scale.z = robot_scale;
     marker.color.a = 1;
+    
     msg.markers.emplace_back(marker);
 
     pub_pose->publish(msg);
@@ -69,14 +77,14 @@ void Simulator::publish_marker_pose() {
 void Simulator::broadcast_tf() {
     //TODO: implement this!
     geometry_msgs::msg::TransformStamped t;
+
     t.header.stamp = this->get_clock()->now();
-    
     t.header.frame_id = "/world";
     std::string namespace_ = this->get_namespace();
     t.child_frame_id = namespace_;
    
-    t.transform.translation.x = state_x;
-    t.transform.translation.y = state_y;
+    t.transform.translation.x = state.x;
+    t.transform.translation.y = state.y;
     t.transform.translation.z = 0.0;
 
     //tf2::Quaternion q;

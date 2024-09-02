@@ -22,6 +22,8 @@ private:
   rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr sub_pose;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener;
   std::unique_ptr<tf2_ros::Buffer> tf_buffer;
+  
+  geometry_msgs::msg::Twist cmd_vel;
 };
 
 #endif //ROS2_TUTORIAL_CMD_PUBLISHER_H

@@ -48,22 +48,21 @@ void CmdPublisher::timer_tf_callback() {
     return;
     }
 
+  real_x = t.transform.translation.x;
+  real_y = t.transform.translation.y;
 
   geometry_msgs::msg::Quaternion q = t.transform.rotation;
   double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
   double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
   real_th = std::atan2(siny_cosp, cosy_cosp);
 
-  real_x = t.transform.translation.x;
-  real_y = t.transform.translation.y;
 
-
-  //RCLCPP_INFO(this->get_logger(), "%f, %f, %f", real_x, real_y, real_th);
+  RCLCPP_INFO(this->get_logger(), "%f, %f, %f", real_x, real_y, real_th);
 }
 
 void CmdPublisher::timer_cmd_callback() {
   //TODO: implement this!
-  geometry_msgs::msg::Twist cmd;
+  geometry_msgs::msg::Twist cmd_vel;
 
   double goal_x, goal_y, goal_th;
 
@@ -118,8 +117,8 @@ void CmdPublisher::timer_cmd_callback() {
   double i_error_d = (i_error_d + prev_error_d) * dt;
   double i_error_th = (i_error_th + prev_error_th) * dt;
 
-  cmd.linear.x = 2.4 * error_d + 0.07 * d_error_d + 0.001 * i_error_d;
-  cmd.angular.z = 2.4 * error_th + 0.07 * d_error_th + 0.001 * i_error_th;
+  cmd_vel.linear.x = 2.4 * error_d + 0.07 * d_error_d + 0.001 * i_error_d;
+  cmd_vel.angular.z = 2.4 * error_th + 0.07 * d_error_th + 0.001 * i_error_th;
 
   prev_error_d = error_d;
   prev_error_th = error_th; 
@@ -130,5 +129,5 @@ void CmdPublisher::timer_cmd_callback() {
     i_error_d = 0;
     i_error_th = 0;
 
-  pub_cmd->publish(cmd);
+  pub_cmd->publish(cmd_vel);
 }
